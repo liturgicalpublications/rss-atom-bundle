@@ -110,7 +110,24 @@ abstract class Parser
      */
     public function guessDateFormat($date)
     {
-        foreach ($this->dateFormats as $format) {
+        //not the right way to fix this, but for now...
+        $dateFormats = [
+            'DATE_ATOM', "Y-m-d\\TH:iP",
+            'DATE_RSS', "D, d M Y H:i O", 'D, J d Y H:i O',
+            'DATE_W3C', "Y-m-d\\TH:iP",
+            'DATE_COOKIE', "l, d-M-y H:i T",
+            'DATE_ISO8601', "Y-m-d\\TH:iO",
+            'DATE_RFC822', "D, d M y H:i O",
+            'DATE_RFC1036', "D, d M y H:i O",
+            'DATE_RFC1123', "D, d M Y H:i O",
+            'DATE_RFC2822', "D, d M Y H:i O",
+            'DATE_RFC3339', "Y-m-d\\TH:iP",
+            'DATE_RFC850', "l, d-M-y H:i T",
+            'Y-m-d\TH:i:sP', 'D, d M Y H:i:s O',
+            'Y-m-d\TH:i:sP', 'Y-m-d\TH:i:s.uP'
+        ];
+
+        foreach ($dateFormats as $format) {
             $test = \DateTime::createFromFormat($format, $date);
             if ($test instanceof \DateTime) {
                 return $format;
