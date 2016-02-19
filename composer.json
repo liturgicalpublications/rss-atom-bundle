@@ -1,5 +1,5 @@
 {
-    "name": "debril/rss-atom-bundle",
+    "name": "liturgicalpublications/rss-atom-bundle",
     "type": "symfony-bundle",
     "description": "RSS and Atom support for Symfony 2",
     "keywords": ["rss", "atom"],
