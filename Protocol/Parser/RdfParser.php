@@ -58,20 +58,40 @@ class RdfParser extends Parser
 
         if (isset($xmlBody->channel->date)) {
             $date = $xmlBody->channel->children('dc', true);
-            $updated = static::convertToDateTime($date[0], $this->guessDateFormat($date[0]));
-            $feed->setLastModified($updated);
+            try{// LPI CODE - wrap in try catch to prevent read errors, and use ->date first
+                if (isset($date->date)) {
+                    $updated = static::convertToDateTime($date->date, $this->guessDateFormat($date->date));
+                }else{
+                    $updated = static::convertToDateTime($date[0], $this->guessDateFormat($date[0]));
+                }
+
+                $feed->setLastModified($updated);
+            }catch(\Exception $e) {
+                // We could not get the date, moving on.
+            }
         }
 
         $format = null;
         foreach ($xmlBody->item as $xmlElement) {
             $item = $this->newItem();
             $date = $xmlElement->children('dc', true);
-            $format = !is_null($format) ? $format : $this->guessDateFormat($date[0]);
+            try{ // lpi code: try/catch and isset
+                if (isset($date->date)) {
+                    $format = !is_null($format) ? $format : $this->guessDateFormat($date->date);
+                    $objectDate = true;
+                }else{
+                    $format = !is_null($format) ? $format : $this->guessDateFormat($date[0]);
+                    $objectDate = false;
+                }
+
+            }catch (\Exception $e){
+                // Nothing
+            }
 
             $item->setTitle($xmlElement->title)
-                    ->setDescription($xmlElement->description)
-                    ->setUpdated(static::convertToDateTime($date[0], $format))
-                    ->setLink($xmlElement->link);
+                ->setDescription($xmlElement->description)
+                ->setUpdated(static::convertToDateTime($objectDate ? $date->date : $date[0], $format))
+                ->setLink($xmlElement->link);
 
             $this->addValidItem($feed, $item, $filters);
         }
